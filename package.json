@@ -1,0 +1,10 @@
+{
+  "name": "vibe-check",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Startup Vibe Check — Gen Z startup idea analyzer powered by Gemini",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}

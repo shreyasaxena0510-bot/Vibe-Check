@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vibe Check — Is your startup idea actually good?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #06060a;
+    --bg2: #0d0d14;
+    --bg3: #12121c;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0eeff;
+    --text2: rgba(240,238,255,0.5);
+    --text3: rgba(240,238,255,0.25);
+    --purple: #8b5cf6;
+    --purple2: #a78bfa;
+    --purple3: rgba(139,92,246,0.15);
+    --purple4: rgba(139,92,246,0.08);
+    --green: #10b981;
+    --green2: rgba(16,185,129,0.12);
+    --red: #ef4444;
+    --red2: rgba(239,68,68,0.12);
+    --amber: #f59e0b;
+    --amber2: rgba(245,158,11,0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(139,92,246,0.08); top: -100px; left: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(16,185,129,0.05); bottom: 200px; right: -100px; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    border-bottom: 0.5px solid var(--border);
+    background: rgba(6,6,10,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: var(--purple);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .nav-pill {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    border: 0.5px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 80px 24px 56px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple3);
+    border: 0.5px solid rgba(139,92,246,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    color: var(--purple2);
+    letter-spacing: 0.06em;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+
+  .hero-tag span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--purple2);
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 400px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+  }
+
+  /* ── INPUT AREA ── */
+  .input-wrapper {
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: left;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: rgba(139,92,246,0.5);
+  }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    resize: none;
+    min-height: 100px;
+    caret-color: var(--purple2);
+  }
+
+  textarea::placeholder {
+    color: var(--text3);
+    font-style: italic;
+  }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .run-btn {
+    background: var(--purple);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .run-btn:hover { background: #7c3aed; }
+  .run-btn:active { transform: scale(0.97); }
+  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .run-btn svg { transition: transform 0.2s; }
+  .run-btn:not(:disabled):hover svg { transform: translateX(2px); }
+
+  .example-chips {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .chip {
+    background: transparent;
+    border: 0.5px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .chip:hover {
+    border-color: var(--border2);
+    color: var(--text2);
+  }
+
+  /* ── LOADING ── */
+  #loading {
+    display: none;
+    text-align: center;
+    padding: 56px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .loading-inner { max-width: 380px; margin: 0 auto; }
+
+  .loading-ring {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-msg {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text2);
+    font-style: italic;
+    min-height: 20px;
+    transition: opacity 0.3s;
+  }
+
+  .loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 24px;
+    text-align: left;
+  }
+
+  .lstep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text3);
+    padding: 8px 12px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border);
+    transition: color 0.3s, border-color 0.3s;
+  }
+
+  .lstep.active { color: var(--text2); border-color: var(--border2); }
+  .lstep.done { color: var(--green); border-color: rgba(16,185,129,0.2); }
+
+  .lstep-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* ── RESULTS ── */
+  #results {
+    display: none;
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* score hero */
+  .score-hero {
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .score-ring-wrap {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+  }
+
+  .score-ring-wrap svg { transform: rotate(-90deg); }
+
+  .score-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .score-denom {
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  .verdict-content h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .verdict-sub {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+    font-weight: 300;
+  }
+
+  .vibe-badge {
+    display: inline-block;
+    background: var(--purple3);
+    border: 0.5px solid rgba(139,92,246,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--purple2);
+    letter-spacing: 0.04em;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+  }
+
+  /* meter */
+  .meter-wrap { margin-bottom: 16px; }
+  .meter-track {
+    background: var(--bg3);
+    border-radius: 20px;
+    height: 6px;
+    overflow: hidden;
+    border: 0.5px solid var(--border);
+  }
+  .meter-fill {
+    height: 100%;
+    border-radius: 20px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* roast */
+  .roast-card {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-left: 2px solid var(--purple);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.8;
+    margin-bottom: 16px;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* tag sections */
+  .tag-section {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+
+  .tag-section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+  }
+
+  .tag-red { background: var(--red2); border: 0.5px solid rgba(239,68,68,0.2); color: #fca5a5; }
+  .tag-green { background: var(--green2); border: 0.5px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+  .tag-amber { background: var(--amber2); border: 0.5px solid rgba(245,158,11,0.2); color: #fcd34d; }
+
+  /* metrics grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  @media (min-width: 500px) {
+    .metrics-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .metric-tile {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+  }
+
+  .metric-value {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+  /* action row */
+  .action-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .action-btn {
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+  .action-btn.primary {
+    background: var(--purple);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  .action-btn.primary:hover { background: #7c3aed; }
+
+  .copy-toast {
+    font-size: 11px;
+    color: var(--green);
+    align-self: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 32px 24px;
+    border-top: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+
+  footer a { color: var(--purple2); text-decoration: none; }
+
+  /* section divider */
+  .section-divider {
+    height: 0.5px;
+    background: var(--border);
+    max-width: 680px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* error */
+  .error-box {
+    background: var(--red2);
+    border: 0.5px solid rgba(239,68,68,0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #fca5a5;
+    margin-top: 12px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    vibe check
+  </div>
+  <div class="nav-pill">powered by Gemini</div>
+</nav>
+
+<!-- HERO / INPUT -->
+<section class="hero" id="heroSection">
+  <div class="hero-tag"><span></span> brutally honest · gen z approved</div>
+  <h1>Is your startup idea<br><em>actually good?</em></h1>
+  <p class="hero-sub">Describe your idea. Get a Gen Z vibe rating, a reality check, and the names of the companies already doing it.</p>
+
+  <div class="input-wrapper">
+    <textarea id="ideaInput" placeholder="e.g. An app that matches you with people who have complementary morning routines so you can be productive accountability partners..." maxlength="500"></textarea>
+    <div class="input-footer">
+      <span class="char-count"><span id="charNum">0</span> / 500</span>
+      <button class="run-btn" id="runBtn" onclick="runVibeCheck()">
+        run vibe check
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="example-chips">
+    <button class="chip" onclick="fillExample('Tinder but for finding a co-founder based on your Myers-Briggs and GitHub activity')">co-founder Tinder</button>
+    <button class="chip" onclick="fillExample('An AI life coach that texts you every morning with a personalized routine based on your calendar and mood')">AI life coach</button>
+    <button class="chip" onclick="fillExample('A subscription box that sends you one mystery experience per month — could be skydiving, pottery, or a cooking class')">mystery experience box</button>
+    <button class="chip" onclick="fillExample('LinkedIn but everyone is anonymous until you match, to remove bias in hiring')">anonymous LinkedIn</button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="loading-inner">
+    <div class="loading-ring"></div>
+    <div class="loading-msg" id="loadingMsg">consulting the startup graveyard...</div>
+    <div class="loading-steps">
+      <div class="lstep" id="ls1"><div class="lstep-dot"></div>scanning YC rejected pile</div>
+      <div class="lstep" id="ls2"><div class="lstep-dot"></div>checking Product Hunt circa 2019</div>
+      <div class="lstep" id="ls3"><div class="lstep-dot"></div>asking a 19-year-old founder</div>
+      <div class="lstep" id="ls4"><div class="lstep-dot"></div>calculating cringe coefficient</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<section id="results">
+
+  <!-- Score hero -->
+  <div class="score-hero">
+    <div class="score-ring-wrap">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+        <circle cx="45" cy="45" r="38" fill="none" stroke="#8b5cf6" stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="238.76"
+          stroke-dashoffset="238.76"
+          id="scoreArc"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-num" id="scoreNum">0</div>
+        <div class="score-denom">/ 100</div>
+      </div>
+    </div>
+    <div class="verdict-content">
+      <h2 id="verdictHeadline"></h2>
+      <p class="verdict-sub" id="verdictSub"></p>
+      <div class="vibe-badge" id="vibeBadge"></div>
+    </div>
+  </div>
+
+  <!-- Meter -->
+  <div class="meter-wrap">
+    <div class="meter-track"><div class="meter-fill" id="meterFill"></div></div>
+  </div>
+
+  <!-- Roast -->
+  <div class="roast-card" id="roastCard"></div>
+
+  <!-- Already exists -->
+  <div class="tag-section">
+    <div class="tag-section-label">already exists as</div>
+    <div class="tags" id="existingTags"></div>
+  </div>
+
+  <!-- Differentiators -->
+  <div class="tag-section">
+    <div class="tag-section-label">your actual edge (if you execute right)</div>
+    <div class="tags" id="diffTags"></div>
+  </div>
+
+  <!-- Risks -->
+  <div class="tag-section">
+    <div class="tag-section-label">biggest risks</div>
+    <div class="tags" id="riskTags"></div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics-grid">
+    <div class="metric-tile"><div class="metric-label">market timing</div><div class="metric-value" id="m-timing">—</div></div>
+    <div class="metric-tile"><div class="metric-label">build difficulty</div><div class="metric-value" id="m-build">—</div></div>
+    <div class="metric-tile"><div class="metric-label">monetization</div><div class="metric-value" id="m-money">—</div></div>
+    <div class="metric-tile"><div class="metric-label">gen z would use it?</div><div class="metric-value" id="m-genz">—</div></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-row">
+    <button class="action-btn primary" onclick="copyReport()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      copy rage report
+    </button>
+    <button class="action-btn" onclick="shareOnX()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.261 5.635zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      share on X
+    </button>
+    <button class="action-btn" onclick="resetApp()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      check another
+    </button>
+    <span class="copy-toast" id="copyToast">copied!</span>
+  </div>
+
+</section>
+
+<footer>
+  no cap, powered by <a href="https://ai.google.dev" target="_blank">Gemini</a> · built for the delusional founder in all of us
+</footer>
+
+<script>
+  const EXAMPLES = [
+    'Tinder but for finding a co-founder based on your Myers-Briggs and GitHub activity',
+    'An AI life coach that texts you every morning with a personalized routine based on your calendar and mood',
+    'A subscription box that sends you one mystery experience per month — could be skydiving, pottery, or a cooking class',
+    'LinkedIn but everyone is anonymous until you match, to remove bias in hiring'
+  ];
+
+  const LOADING_MSGS = [
+    'consulting the startup graveyard...',
+    'scanning YC\'s rejected pile...',
+    'asking a 19-year-old founder...',
+    'checking Product Hunt circa 2019...',
+    'vibing with the oracle...',
+    'calculating cringe coefficient...',
+    'googling "is this already a thing"...',
+    'running the delusion filter...'
+  ];
+
+  let lastResult = null;
+
+  document.getElementById('ideaInput').addEventListener('input', function() {
+    document.getElementById('charNum').textContent = this.value.length;
+  });
+
+  document.getElementById('ideaInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runVibeCheck();
+  });
+
+  function fillExample(text) {
+    document.getElementById('ideaInput').value = text;
+    document.getElementById('charNum').textContent = text.length;
+    document.getElementById('ideaInput').focus();
+  }
+
+  async function runVibeCheck() {
+    const idea = document.getElementById('ideaInput').value.trim();
+    if (!idea) { document.getElementById('ideaInput').focus(); return; }
+
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
+
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // loading step animation
+    const steps = ['ls1','ls2','ls3','ls4'];
+    let stepIdx = 0;
+    const stepInterval = setInterval(() => {
+      if (stepIdx > 0) {
+        document.getElementById(steps[stepIdx-1]).className = 'lstep done';
+      }
+      if (stepIdx < steps.length) {
+        document.getElementById(steps[stepIdx]).className = 'lstep active';
+        stepIdx++;
+      }
+    }, 700);
+
+    let msgIdx = 0;
+    const msgInterval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % LOADING_MSGS.length;
+      document.getElementById('loadingMsg').textContent = LOADING_MSGS[msgIdx];
+    }, 1800);
+
+    try {
+      const res = await fetch('/api/vibe-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea })
+      });
+
+      clearInterval(stepInterval);
+      clearInterval(msgInterval);
+      steps.forEach(s => document.getElementById(s).className = 'lstep done');
+
+      await new Promise(r => setTimeout(r, 400));
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+
+      lastResult = { idea, ...data };
+      renderResults(data);
+
+    } catch(err) {
+      clearInterval(stepInterval);
+      clearInterval(msgInterval);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('errorBox').textContent = 'Something went wrong: ' + err.message;
+      document.getElementById('errorBox').style.display = 'block';
+      btn.disabled = false;
+    }
+  }
+
+  function renderResults(d) {
+    document.getElementById('loading').style.display = 'none';
+
+    // score circle animation
+    const score = Math.max(0, Math.min(100, d.vibeScore));
+    const circumference = 238.76;
+    const offset = circumference - (score / 100) * circumference;
+    const arc = document.getElementById('scoreArc');
+    const scoreDisplay = document.getElementById('scoreNum');
+
+    // color based on score
+    const color = score >= 70 ? '#10b981' : score >= 45 ? '#f59e0b' : '#ef4444';
+    arc.style.stroke = color;
+    document.getElementById('meterFill').style.background = color;
+
+    arc.style.strokeDashoffset = circumference;
+    setTimeout(() => {
+      arc.style.transition = 'stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)';
+      arc.style.strokeDashoffset = offset;
+    }, 100);
+
+    // count up score
+    let current = 0;
+    const countUp = setInterval(() => {
+      current = Math.min(current + Math.ceil(score / 30), score);
+      scoreDisplay.textContent = current;
+      if (current >= score) clearInterval(countUp);
+    }, 30);
+
+    document.getElementById('verdictHeadline').textContent = d.vibeHeadline;
+    document.getElementById('verdictSub').textContent = d.verdictSub;
+    document.getElementById('vibeBadge').textContent = d.vibeRating;
+    document.getElementById('roastCard').textContent = '"' + d.roast + '"';
+
+    setTimeout(() => {
+      document.getElementById('meterFill').style.width = score + '%';
+    }, 200);
+
+    // tags
+    const existDiv = document.getElementById('existingTags');
+    existDiv.innerHTML = d.existingCompetitors.map(c =>
+      `<span class="tag tag-red">✗ ${c}</span>`
+    ).join('');
+
+    const diffDiv = document.getElementById('diffTags');
+    diffDiv.innerHTML = d.differentiators.map(x =>
+      `<span class="tag tag-green">✓ ${x}</span>`
+    ).join('');
+
+    const riskDiv = document.getElementById('riskTags');
+    riskDiv.innerHTML = d.risks.map(r =>
+      `<span class="tag tag-amber">⚠ ${r}</span>`
+    ).join('');
+
+    document.getElementById('m-timing').textContent = d.marketTiming;
+    document.getElementById('m-build').textContent = d.buildDifficulty;
+    document.getElementById('m-money').textContent = d.monetization;
+    document.getElementById('m-genz').textContent = d.genZWouldUse;
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('runBtn').disabled = false;
+  }
+
+  function copyReport() {
+    if (!lastResult) return;
+    const d = lastResult;
+    const report = [
+      `STARTUP VIBE CHECK REPORT`,
+      `━━━━━━━━━━━━━━━━━━━━━━━━`,
+      `Idea: ${d.idea}`,
+      ``,
+      `Vibe score: ${d.vibeScore}/100`,
+      `Rating: ${d.vibeRating}`,
+      `Verdict: ${d.vibeHeadline}`,
+      ``,
+      `The roast: ${d.roast}`,
+      ``,
+      `Already exists as: ${d.existingCompetitors.join(', ')}`,
+      `Your edge: ${d.differentiators.join(' / ')}`,
+      `Risks: ${d.risks.join(' / ')}`,
+      ``,
+      `Market timing: ${d.marketTiming}`,
+      `Build difficulty: ${d.buildDifficulty}`,
+      `Monetization: ${d.monetization}`,
+      `Gen Z would use it: ${d.genZWouldUse}`,
+      ``,
+      `— checked at Startup Vibe Check (powered by Gemini)`
+    ].join('\n');
+
+    navigator.clipboard.writeText(report).then(() => {
+      const t = document.getElementById('copyToast');
+      t.style.opacity = '1';
+      setTimeout(() => t.style.opacity = '0', 2500);
+    });
+  }
+
+  function shareOnX() {
+    if (!lastResult) return;
+    const d = lastResult;
+    const tweet = `just ran my startup idea through a vibe check\n\n"${d.idea.slice(0, 80)}${d.idea.length > 80 ? '...' : ''}"\n\nscore: ${d.vibeScore}/100 — ${d.vibeRating}\n\nalready exists as: ${d.existingCompetitors.slice(0,2).join(', ')}\n\n💀`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+  }
+
+  function resetApp() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('ideaInput').value = '';
+    document.getElementById('charNum').textContent = '0';
+    document.getElementById('heroSection').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => document.getElementById('ideaInput').focus(), 500);
+  }
+</script>
+</body>
+</html>
