@@ -1,4 +1,4 @@
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 function buildPrompt(idea) {
   return `You are a brutally honest Gen Z startup critic with deep knowledge of the startup ecosystem. Analyze this startup idea and respond ONLY with a valid JSON object. No markdown, no backticks, no explanation, just raw JSON.
@@ -24,8 +24,40 @@ Respond with exactly this structure:
 
 function parseJsonResponse(text) {
   const cleaned = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    if (start !== -1 && end > start) {
+      return JSON.parse(cleaned.slice(start, end + 1));
+    }
+    throw new Error('Invalid JSON response from Gemini');
+  }
 }
+
+const RESPONSE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    vibeScore: { type: 'INTEGER' },
+    vibeRating: { type: 'STRING' },
+    vibeHeadline: { type: 'STRING' },
+    verdictSub: { type: 'STRING' },
+    roast: { type: 'STRING' },
+    existingCompetitors: { type: 'ARRAY', items: { type: 'STRING' } },
+    differentiators: { type: 'ARRAY', items: { type: 'STRING' } },
+    risks: { type: 'ARRAY', items: { type: 'STRING' } },
+    marketTiming: { type: 'STRING' },
+    buildDifficulty: { type: 'STRING' },
+    monetization: { type: 'STRING' },
+    genZWouldUse: { type: 'STRING' },
+  },
+  required: [
+    'vibeScore', 'vibeRating', 'vibeHeadline', 'verdictSub', 'roast',
+    'existingCompetitors', 'differentiators', 'risks',
+    'marketTiming', 'buildDifficulty', 'monetization', 'genZWouldUse',
+  ],
+};
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -54,8 +86,9 @@ module.exports = async function handler(req, res) {
         contents: [{ parts: [{ text: buildPrompt(trimmedIdea) }] }],
         generationConfig: {
           temperature: 0.9,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
           responseMimeType: 'application/json',
+          responseSchema: RESPONSE_SCHEMA,
         },
       }),
     });
